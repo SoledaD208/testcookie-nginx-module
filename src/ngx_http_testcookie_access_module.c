@@ -12,7 +12,7 @@
 #include <ngx_md5.h>
 #include <hiredis/hiredis.h>
 
-redisContext *c;
+redisContext *c_testcookie;
 redisReply *reply;
 
 #define REFRESH_COOKIE_ENCRYPTION
@@ -616,14 +616,14 @@ ngx_http_testcookie_handler(ngx_http_request_t *r)
 				r->connection->addr_text.len, r->connection->addr_text.data);
 
     if (conf->enable_redis == NGX_HTTP_TESTCOOKIE_ON) {
-	    if (c == NULL) {
+	    if (c_testcookie == NULL) {
             ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,"redis server: %s %d\n", conf->redisip.data,conf->redisport);
-		    c = redisConnectWithTimeout((char *)conf->redisip.data, conf->redisport, timeout);
+		    c_testcookie = redisConnectWithTimeout((char *)conf->redisip.data, conf->redisport, timeout);
 
-		    if (c == NULL || c->err) {
-				if (c) {
+		    if (c_testcookie == NULL || c_testcookie->err) {
+				if (c_testcookie) {
                     ngx_log_error(NGX_LOG_WARN, r->connection->log, 0,
-					"smt wrong Redis: %s\n", c->errstr);
+					"smt wrong Redis: %s\n", c_testcookie->errstr);
 					return NGX_DECLINED;
 				} else {
 					ngx_log_error(NGX_LOG_WARN, r->connection->log, 0,
@@ -631,10 +631,10 @@ ngx_http_testcookie_handler(ngx_http_request_t *r)
 				}
 			}
 	}
-    if (!c->err) {        
+    if (!c_testcookie->err) {        
         ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,"Redis GET %s:\n", Host);
-        reply = redisCommand(c, "SELECT %d", conf->redisdb);
-		reply = redisCommand(c, "GET %s", Host);
+        reply = redisCommand(c_testcookie, "SELECT %d", conf->redisdb);
+		reply = redisCommand(c_testcookie, "GET %s", Host);
 		if (reply->str == NULL) {
 			freeReplyObject(reply);
 			return NGX_DECLINED;
