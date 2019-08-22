@@ -636,7 +636,7 @@ ngx_http_testcookie_handler(ngx_http_request_t *r)
         reply_testcookie = redisCommand(c_testcookie, "SELECT %d", conf->redisdb);
 		reply_testcookie = redisCommand(c_testcookie, "GET %s", Host);
 		if (reply_testcookie->str == NULL) {
-			freeReplyObject(reply);
+			freeReplyObject(reply_testcookie);
 			return NGX_DECLINED;
 		}
 
