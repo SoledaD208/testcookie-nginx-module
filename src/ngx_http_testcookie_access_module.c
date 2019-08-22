@@ -13,7 +13,7 @@
 #include <hiredis/hiredis.h>
 
 redisContext *c_testcookie;
-redisReply *reply;
+redisReply *reply_testcookie;
 
 #define REFRESH_COOKIE_ENCRYPTION
 
@@ -633,15 +633,15 @@ ngx_http_testcookie_handler(ngx_http_request_t *r)
 	}
     if (!c_testcookie->err) {        
         ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,"Redis GET %s:\n", Host);
-        reply = redisCommand(c_testcookie, "SELECT %d", conf->redisdb);
-		reply = redisCommand(c_testcookie, "GET %s", Host);
-		if (reply->str == NULL) {
+        reply_testcookie = redisCommand(c_testcookie, "SELECT %d", conf->redisdb);
+		reply_testcookie = redisCommand(c_testcookie, "GET %s", Host);
+		if (reply_testcookie->str == NULL) {
 			freeReplyObject(reply);
 			return NGX_DECLINED;
 		}
 
         ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
-						"Redis result GET %s: %s\n", Host, reply->str);
+						"Redis result GET %s: %s\n", Host, reply_testcookie->str);
 
         ngx_str_t r_uri;
         r_uri = r->uri;
